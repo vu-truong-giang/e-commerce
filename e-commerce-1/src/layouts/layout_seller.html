@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>layout admin</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+
+    <style>
+      :root {
+        --sidebar-w: 250px;
+        --sidebar-w-collapsed: 80px; /* chỉ còn icon */
+        --grad-a: #7928ca; /* tím */
+        --grad-b: #ff0080; /* hồng neon */
+        --bg-body: #f6f7fb; /* nền content */
+        --text-muted: #6c757d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-family: Roboto, system-ui, -apple-system, Segoe UI, Arial,
+          sans-serif;
+        background: var(--bg-body);
+      }
+
+      .collapsed {
+        width: var(--sidebar-w-collapsed) !important;
+      }
+
+      .content_header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .nav-item {
+        position: relative;
+        border-top-left-radius: 30px;
+        border-bottom-left-radius: 30px;
+      }
+      .nav-item:hover {
+        background-color: var(--bg-body);
+      }
+      .nav-item:hover a::before {
+        content: "";
+        position: absolute;
+        background-color: transparent;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        right: 0;
+        top: -50.6%;
+        transform: translateY(-44%);
+        box-shadow: 25px 27px 0 8px var(--bg-body);
+      }
+      .nav-item:hover a::after {
+        content: "";
+        position: absolute;
+        background-color: transparent;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        right: 0;
+        bottom: -148%;
+        transform: translateY(-66%);
+        box-shadow: 23px -30px 0 7px var(--bg-body);
+      }
+      .bi {
+        font-size: 1.2rem;
+        width: 1.5rem;
+        margin-right: 10px;
+      }
+      .sidebar ul li a {
+        font-size: large;
+        font-weight: 500;
+        text-decoration: none; /* bỏ gạch chân */
+        color: rgb(253, 253, 253); /* màu chữ */
+        padding: 8px 12px; /* khoảng cách */
+        display: block; /* full dòng */
+        border-radius: 6px; /* bo góc */
+        transition: background-color 0.3s, color 0.3s; /* hiệu ứng chuyển màu */
+      }
+      .active {
+        color: black !important;
+        margin-left: 10px;
+        transition: margin-left 0.3s;
+      }
+      .btn-navbar {
+        background: rgba(255, 255, 255, 0.22);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+          0 10px 24px rgba(121, 40, 202, 0.35);
+        color: black;
+      }
+      .fade-out {
+        opacity: 1;
+        overflow: hidden;
+        transition: opacity 0.5s ease, max-height 0.5s ease;
+      }
+
+      .sidebar.collapsed .fade-out {
+        opacity: 0;
+        max-height: 0;
+        max-width: 0;
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-fluid d-flex p-0 h-100">
+      <!--sidebar-->
+      <div
+        id="sidebar"
+        class="sidebar flex-shrink-0 h-100 d-flex flex-column text-white"
+        style="
+          width: var(--sidebar-w);
+          background: linear-gradient(45deg, var(--grad-a), var(--grad-b));
+          transition: width 0.3s;
+        "
+      >
+        <div class="sidebar_logo p-3 border-bottom d-flex align-items-center">
+          <div
+            class="rounded-1 overflow-hidden"
+            style="width: 40px; height: 40px; background-color: white"
+          >
+            <img
+              src="../assets/images/img_logo_light.png"
+              alt=""
+              class="w-100 h-100 object-fit-contain"
+              style="transform: scale(1.5)"
+            />
+          </div>
+
+          <div
+            class="ms-2 fs-4 fw-bold align-items-start justify-content-center text-dark d-flex flex-column fade-out"
+          >
+            <span class="text-white" style="font-size: medium">Seller</span>
+            <span class="nowrap" style="font-size: xx-small; color: whitesmoke"
+              >be your best choice..</span
+            >
+          </div>
+        </div>
+        <ul class="nav d-flex flex-column mt-4 ps-2 list-unstyled">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Trang tổng quan"
+            >
+              <i class="bi bi-speedometer2"></i
+              ><span class="fade-out">Dashboard</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Quản lý đơn hàng"
+              ><i class="bi bi-receipt"></i
+              ><span class="fade-out">Orders</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Quản lý sản phẩm"
+              ><i class="bi bi-box-seam"></i
+              ><span class="fade-out">Products</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Quản lý doanh thu"
+              ><i class="bi bi-bar-chart-line"></i
+              ><span class="fade-out">Revenue</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Quản lý đánh giá"
+              ><i class="bi bi-card-text"></i
+              ><span class="fade-out">Reports</span></a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Cài đặt tài khoản"
+              ><i class="bi bi-gear"></i
+              ><span class="fade-out">Settings</span></a
+            >
+          </li>
+
+          <li class="nav-item mb-3">
+            <a
+              class="nav-link"
+              href="#"
+              data-bs-toggle="tooltip"
+              data-bs-placement="right"
+              title="Thoát"
+              ><i class="bi bi-arrow-left-square"></i
+              ><span class="fade-out">Logout</span></a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div
+        id="content"
+        class="content flex-fill d-flex flex-column"
+        style="transition: margin-left 0.3s"
+      >
+        <!--content Header-->
+        <div class="content_header p-2 d-flex">
+          <button id="toggleBtn" class="btn btn-navbar btn-secondary ">☰</button>
+          <h2 class="ps-2 pe-2 m-0">Header</h2>
+          <form class="d-flex ms-auto" role="search">
+            <input
+              class="form-control me-2"
+              type="search"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button class="btn btn-outline-success"  type="submit">
+              Search
+            </button>
+          </form>
+        </div>
+        <!--content Main-->
+        <div
+          class="content_main p-5 overflow-auto"
+          style="height: calc(100vh - 56px)"
+        >
+          <h1>Nội dung trang</h1>
+          <p>
+            Khi ấn vào nút menu, sidebar sẽ thu nhỏ và phần content sẽ co lại
+            theo đúng flex layout. Lorem ipsum dolor sit, amet consectetur
+            adipisicing elit. Quaerat qui, possimus fuga unde voluptatum et
+            tempore doloremque deleniti nostrum laborum blanditiis odit ab
+            placeat, deserunt amet vitae. Laborum, sapiente. Voluptates.
+            Expedita sit aspernatur ut ex. Sed, eius nisi odio earum minus
+            eligendi? Molestiae quae incidunt nobis officia error, eligendi,
+            quam eius deserunt voluptas repellendus recusandae sapiente quasi
+            modi ad explicabo. Corporis itaque harum sint facere numquam ipsa
+            temporibus fugiat deserunt minima tempora deleniti sed quasi nam at
+            corrupti reprehenderit fugit ducimus, impedit eum sequi minus.
+            Magnam at nemo officia est. Sequi nobis distinctio quis labore
+            quidem! Est vero, similique quisquam qui possimus aperiam velit
+            architecto nemo magni consequatur ipsam aut corrupti, repellat fugit
+            sed? Atque nesciunt harum sequi tempore sed? Ab eum fuga iusto,
+            officiis, sint id qui cupiditate inventore eligendi, natus debitis
+            facilis. Vero sapiente dolores quibusdam mollitia iusto, dolore
+            ipsam, blanditiis ullam pariatur quis voluptatem, nobis delectus
+            nam! Voluptate quia reprehenderit obcaecati repellendus officiis
+            veniam culpa placeat perferendis, quae quo ratione quisquam
+            assumenda adipisci eveniet sit ipsam maiores cum in corporis, non,
+            iste mollitia dolores corrupti. Omnis, deleniti? Temporibus unde,
+            placeat commodi dolore architecto sed aliquam similique id eligendi
+            ullam reiciendis est error animi numquam iusto nisi possimus
+            pariatur maxime exercitationem, quos in provident. Rerum molestiae
+            reprehenderit officiis. Amet doloribus deserunt reiciendis impedit
+            accusantium nobis sed numquam, perspiciatis quos rerum tempore?
+            Quasi accusamus sequi ex reiciendis autem dignissimos a cupiditate.
+            Eveniet, esse dolorum. Accusamus adipisci tempora quasi magni?
+            Sapiente magnam nostrum provident, eos dolor similique error nam
+            neque ut cumque numquam repellat excepturi, eaque ipsam quasi
+            quibusdam iste dolorem voluptas consectetur. Sit in sequi beatae eum
+            exercitationem iste? Ad corrupti facilis quam doloribus suscipit
+            deserunt consequuntur hic qui ducimus laboriosam, commodi dolore,
+            ullam, consectetur provident. In quas iusto maiores, dolore dolores
+            quidem, qui rem placeat, cumque eum iste.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("content");
+
+      document.getElementById("toggleBtn").addEventListener("click", () => {
+        sidebar.classList.toggle("collapsed");
+        
+      });
+
+      const tooltipTriggerList = document.querySelectorAll(
+        '[data-bs-toggle="tooltip"]'
+      );
+      const tooltipList = [...tooltipTriggerList].map(
+        (el) => new bootstrap.Tooltip(el)
+      );
+    </script>
+  </body>
+</html>
