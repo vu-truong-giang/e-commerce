@@ -7,6 +7,7 @@ export default function AppRouter() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Navigate to="/seller" replace />} />
+
         
         {/* Import route Seller */}
         {SellerRouter}

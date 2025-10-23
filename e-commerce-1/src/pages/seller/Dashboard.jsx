@@ -1,9 +1,13 @@
+import React from "react";
+import CardKIP from "../../components/dashboard/CardKIP";
+import DashboardChart from "../../components/charts/DashboardChart";
 
 export default function Dashboard() {
   return (
-    <div>
-      <h2>Dashbroad</h2>
-      <p>Thống kê + biểu đồ.</p>
+    <div class="content_main flex-grow-1 p-3 overflow-auto">
+      <CardKIP></CardKIP>
+
+      <DashboardChart></DashboardChart>
     </div>
   );
 }

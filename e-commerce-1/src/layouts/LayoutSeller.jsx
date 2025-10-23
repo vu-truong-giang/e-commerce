@@ -95,7 +95,7 @@ export default function LayoutSeller() {
 
         {/* Main content */}
         <div
-          className="content_main p-5 overflow-auto"
+          className="content_main p-3 overflow-auto"
           style={{ height: "calc(100vh - 56px)" }}
         >
           <Outlet />
