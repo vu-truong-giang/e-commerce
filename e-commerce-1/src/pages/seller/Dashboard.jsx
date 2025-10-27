@@ -4,7 +4,7 @@ import DashboardChart from "../../components/charts/DashboardChart";
 
 export default function Dashboard() {
   return (
-    <div class="content_main flex-grow-1 p-3 overflow-auto">
+    <div className="content_main flex-grow-1 p-3 overflow-auto">
       <CardKIP></CardKIP>
 
       <DashboardChart></DashboardChart>

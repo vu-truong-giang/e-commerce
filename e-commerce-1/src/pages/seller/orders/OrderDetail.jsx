@@ -1,13 +1,18 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react"; // ⚠️ bạn quên import useState
-import { orders } from "../../../assets/data/orderData";
+import productData from "../../../assets/data/ProductData";
+
 import ProductItem from "../../../components/products/ProductItem";
 import CardStatusItem from "../../../components/orders/CardStatusItem";
 import PrintOrder from "./PrintOrder";
+import { formatDateTime, getCustomerNameById, getCustomerPhoneById, getOrderAddressByShipppingAddressId, getPaymentMethodByOrderId } from "../../../assets/data/FunctionData";
+import ProductVariantItem from "../../../components/products/ProductVariantItem";
+
+
 
 export default function OrderDetail() {
   const { id } = useParams(); // Lấy id từ URL
-  const order = orders.find((o) => o.id === id);
+  // match id robustly: allow numeric ids or string ids like "ORD-..."
+  const order = productData.orders.find((o) => String(o.id) === String(id) || String(o.id).endsWith(String(id)));
 
   // Nếu không tìm thấy đơn hàng
   if (!order) {
@@ -53,13 +58,13 @@ export default function OrderDetail() {
             </div>
             <div className="card-body">
               <p>
-                <strong>Tên khách hàng:</strong> {order.customer}
+                <strong>Tên khách hàng:</strong> {getCustomerNameById(order.user_id)}
               </p>
               <p>
-                <strong>Số điện thoại:</strong> {order.phone}
+                <strong>Số điện thoại:</strong> {getCustomerPhoneById(order.user_id)}
               </p>
               <p>
-                <strong>Phương thức thanh toán:</strong> {order.paymentMethod}
+                <strong>Phương thức thanh toán:</strong> {getPaymentMethodByOrderId(order.id)}
               </p>
             </div>
           </div>
@@ -73,7 +78,7 @@ export default function OrderDetail() {
             <div className="card-body">
               <p>
                 <strong>Ngày đặt hàng:</strong>{" "}
-                {new Date(order.date).toLocaleString("vi-VN")}
+                {formatDateTime(order.created_at)}
               </p>
               <p>
                 <strong>Trạng thái:</strong> <CardStatusItem status={order.status} />
@@ -82,7 +87,7 @@ export default function OrderDetail() {
               </p>
 
               <p>
-                <strong>Địa chỉ nhận:</strong> <span>{order.address}</span>
+                <strong>Địa chỉ nhận:</strong> <span>{getOrderAddressByShipppingAddressId(order.shipping_addresses_id)}</span>
               </p>
             </div>
           </div>
@@ -101,22 +106,15 @@ export default function OrderDetail() {
                 <tr>
                   <th scope="col">#</th>
                   <th scope="col">Tên sản phẩm</th>
+                  <th scope="col">Loại</th>
+                  <th scope="col">Skud</th>
                   <th scope="col">Số lượng</th>
                   <th scope="col">Đơn giá</th>
                   <th scope="col">Thành tiền</th>
                 </tr>
               </thead>
               <tbody>
-                {order.items.map((item, index) => (
-                  <ProductItem
-                    key={index}
-                    number={index + 1}
-                    name={item.name}
-                    price={item.price}
-                    quantity={item.qty}
-                    totalItem={item.qty * item.price}
-                  />
-                ))}
+                 <ProductVariantItem id={order.id}/>
               </tbody>
             </table>
           </div>
@@ -130,30 +128,28 @@ export default function OrderDetail() {
             <h6 className="fw-semibold mb-3">Tổng kết thanh toán</h6>
             <div className="d-flex justify-content-between">
               <span>Tạm tính:</span>
-              <span>{order.total.toLocaleString("vi-VN")}₫</span>
+              <span>{order.total_amount.toLocaleString("vi-VN")}₫</span>
             </div>
             <div className="d-flex justify-content-between">
               <span>Phí vận chuyển:</span>
-              <span>{order.shippingFee.toLocaleString("vi-VN")}₫</span>
+              <span>{order.shipping_fee.toLocaleString("vi-VN")}₫</span>
             </div>
             <hr />
             <div className="d-flex justify-content-between fw-bold text-danger">
               <span>Tổng cộng:</span>
               <span>
-                {(order.total + order.shippingFee).toLocaleString("vi-VN")}₫
+                {(order.total_amount + order.shipping_fee).toLocaleString("vi-VN")}₫
               </span>
             </div>
           </div>
         </div>
       </div>
 
-    <div className="d-flex gap-2 mt-4">
-        {/* Nút in hóa đơn */}
-      <PrintOrder order={{ ...order, status }} />
-      <button className="btn btn-warning mb-3" >
-        Xóa đơn hàng
-      </button>
-      </div>
+    {/* <div className="d-flex gap-2 mt-4">
+      
+      <PrintOrder order={order} />
+      <button className="btn btn-warning mb-3">Xóa đơn hàng</button>
+    </div> */}
       
 
     </div>

@@ -3,10 +3,11 @@ type CardStatusItemProps = {
 }
 
 const statusStyles: Record<string, string> = {
-  "chờ xác nhận": "bg-warning text-dark",
-  "đang giao": "bg-info text-dark",
-  "hoàn tất": "bg-success",
-  "đã hủy": "bg-danger",
+  "pending": "bg-warning ",
+  "shipping": "bg-info ",
+  "completed": "bg-success",
+  "canceled": "bg-danger",
+  "confirmed": "bg-primary",
 };
 
 export default function CardStatusItem({ status } : CardStatusItemProps) {
@@ -14,7 +15,7 @@ export default function CardStatusItem({ status } : CardStatusItemProps) {
   const badgeClass = statusStyles[status.toLowerCase()] || "bg-secondary";
 
   return (
-    <span className={`badge ${badgeClass}`}>
+    <span className={`badge ${badgeClass} text-dark`}>
       {status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   );

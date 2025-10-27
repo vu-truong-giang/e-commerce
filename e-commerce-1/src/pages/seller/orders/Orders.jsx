@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useMemo } from "react";
 import CardOrderItem from "../../../components/orders/CardOrderItem";
 import "../../../assets/css/OrderManagement.css";
-
-import { orders } from "../../../assets/data/orderData";
-import { statusPriority } from "../../../components/orders/statusPriority";
+import productData  , { statusPriority } from "../../../assets/data/ProductData";
+import { getCustomerNameById, getCustomerPhoneById, getPaymentMethodByOrderId, getSubtotalByOrderId } from "../../../assets/data/FunctionData";
 
 export default function Orders() {
 
-  
-
-  const sortedOrders = [...orders].sort((a,b) => {
+  const sortedOrders = useMemo(() => {
+  return [...productData.orders].sort((a, b) => {
     const statusA = statusPriority[a.status] || 99;
     const statusB = statusPriority[b.status] || 99;
     if(statusA !== statusB) {
       return statusA - statusB;
     }
     return new Date(b.date) - new Date(a.date);
-  })
+  });
+}, [productData.orders]);
+  
   
   const [searchId , setSearchId] = useState("");
   const [filterStatus , setFilterStatus] = useState("");
   const [filterDate , setFilterDate] = useState("");
   const [filterPayment , setFilterPayment] = useState("");
-  const [filterOrders, setFilterOrders] = useState(orders);
+  const [filterOrders, setFilterOrders] = useState(productData.orders);
 
   useEffect(() => {
     let filtered = sortedOrders;
@@ -46,7 +46,7 @@ export default function Orders() {
       })
     }
     setFilterOrders(filtered)
-  }, [searchId, filterStatus, filterDate, filterPayment]);
+  }, [searchId, filterStatus, filterDate, filterPayment, sortedOrders]);
 
   // ====== RESET FILTER ======
   const resetFilters = () => {
@@ -117,7 +117,14 @@ export default function Orders() {
             
               {filterOrders.length > 0 ? (
               filterOrders.map(order => (
-                <CardOrderItem key={order.id} {...order} />
+                <CardOrderItem key={order.id}
+                 id={order.id} 
+                 date={order.created_at} 
+                 customer={getCustomerNameById(order.user_id)} 
+                 phone={getCustomerPhoneById(order.user_id)} 
+                 total={getSubtotalByOrderId(order.id)}
+                 status={order.status}
+                 paymentMenthod={getPaymentMethodByOrderId(order.id)} />
               ))
             ) : (
                 <tr>

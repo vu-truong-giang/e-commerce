@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý sản phẩm</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"/>
+
+    <style>
+      body { background-color: #f9fafb; }
+      .image-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+      .image-item { border: 1px solid #dee2e6; border-radius: 10px; overflow: hidden; aspect-ratio: 1/1; cursor: pointer; transition: 0.2s; }
+      .image-item:hover { box-shadow: 0 0 0 3px #0d6efd33; }
+      .image-item img { width: 100%; height: 100%; object-fit: cover; }
+      .image-item.selected { outline: 3px solid #0d6efd; }
+      .upload-box { border: 2px dashed #ced4da; border-radius: 10px; text-align: center; color: #6c757d; padding-top: 35%; cursor: pointer; transition: all 0.2s; }
+      .upload-box:hover { border-color: #0d6efd; color: #0d6efd; background-color: #f8f9fa; }
+      .option-box { background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+      /* Breadcrumb nhẹ nhàng */
+    .breadcrumb {
+      background-color: transparent;
+      padding: 0;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem; /* nhỏ hơn bình thường */
+    }
+    .breadcrumb a {
+      text-decoration: none;
+      color: #6c757d;
+    }
+    .breadcrumb-item.active {
+      color: #adb5bd; /* nhạt hơn */
+    }
+    </style>
+  </head>
+
+  <body>
+    <div class="container-xl py-4">
+        <nav aria-label="breadcrumb">
+    <ol class="breadcrumb ">
+      <li class="breadcrumb-item"><a href="#">🏠 Trang chủ</a></li>
+      <li class="breadcrumb-item"><a href="#">Sản phẩm</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Thêm sản phẩm mới</li>
+    </ol>
+  </nav>
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h3 class="fw-semibold">Chi tiết sản phẩm</h3>
+        <button class="btn btn-primary px-4">Cập nhật</button>
+      </div>
+       <!-- Breadcrumb -->
+  
+
+      <div class="row">
+        <!-- Cột trái -->
+        <div class="col-lg-8">
+          <div class="mb-4 bg-white p-4 rounded shadow-sm">
+            <label class="form-label fw-semibold">Tiêu đề</label>
+            <input type="text" class="form-control mb-3" placeholder="Nhập tiêu đề sản phẩm..."/>
+            <label class="form-label fw-semibold">Mô tả sản phẩm</label>
+            <textarea class="form-control" rows="4" placeholder="Nhập mô tả chi tiết..."></textarea>
+          </div>
+
+          <!-- Hình ảnh -->
+          <div class="mb-4 bg-white p-4 rounded shadow-sm">
+            <label class="form-label fw-semibold">Hình ảnh</label>
+            <div class="image-grid mt-2">
+              <div class="image-item"><img src="https://via.placeholder.com/150x150?text=Ảnh+1" /></div>
+              <div class="image-item"><img src="https://via.placeholder.com/150x150?text=Ảnh+2" /></div>
+              <div class="image-item"><img src="https://via.placeholder.com/150x150?text=Ảnh+3" /></div>
+              <div class="upload-box" onclick="document.getElementById('fileUpload').click()">
+                <i class="bi bi-upload fs-4"></i><div>Upload</div>
+              </div>
+              <input type="file" id="fileUpload" multiple accept="image/*" hidden />
+            </div>
+          </div>
+
+          <!-- Variant Settings -->
+          <div class="card shadow-sm p-4">
+            <h5 class="fw-semibold mb-3">Cấu hình biến thể (Variant Settings)</h5>
+            <div id="options-area">
+              <div class="option-box">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div>
+                    <label class="form-label fw-semibold mb-1">Option name</label>
+                    <input type="text" class="form-control option-name" placeholder="VD: Màu sắc, Kích cỡ..."/>
+                  </div>
+                  <button class="btn btn-outline-danger btn-sm remove-option">Xóa option</button>
+                </div>
+                <div class="value-area">
+                  <label class="form-label fw-semibold mb-2">Option values</label>
+                  <div class="value-list mb-2">
+                    <div class="d-flex value-item mb-2">
+                      <input type="text" class="form-control option-value" placeholder="Nhập giá trị (VD: Đỏ)"/>
+                      <button class="btn btn-outline-danger btn-sm remove-value">✕</button>
+                    </div>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm add-value">+ Thêm giá trị</button>
+                </div>
+              </div>
+            </div>
+
+            <button id="add-option" class="btn btn-outline-success btn-sm mt-2">+ Thêm option</button>
+            <hr class="my-4"/>
+
+            <!-- Bảng biến thể -->
+            <div id="variant-table-area">
+              <h6 class="fw-semibold mb-3">Bảng biến thể</h6>
+              <table class="table table-bordered table-sm variant-table">
+                <thead class="table-light">
+                  <tr id="variant-header">
+                    <th>Biến thể</th>
+                    <th>Giá (VNĐ)</th>
+                    <th>Số lượng</th>
+                    <th>SKU</th>
+                  </tr>
+                </thead>
+                <tbody id="variant-body"></tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4 gap-2">
+              <button class="btn btn-secondary px-4">Hủy</button>
+              <button class="btn btn-primary px-4">Lưu sản phẩm</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cột phải -->
+        <div class="col-lg-4">
+          <div class="bg-white p-4 rounded shadow-sm mb-3">
+            <label class="form-label fw-semibold">Hiển thị</label>
+            <div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="status" id="public" checked/><label class="form-check-label" for="public"> Công khai </label></div>
+              <div class="form-check"><input class="form-check-input" type="radio" name="status" id="draft"/><label class="form-check-label" for="draft"> Nháp </label></div>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded shadow-sm mb-3"><label class="form-label fw-semibold">Vendor</label><input type="text" class="form-control" placeholder="BLACK WHITE"/></div>
+          <div class="bg-white p-4 rounded shadow-sm mb-3"><label class="form-label fw-semibold">Collections</label><input type="text" class="form-control" placeholder="Phụ kiện nhà bếp, Tô - Chén - Dĩa"/></div>
+          <div class="bg-white p-4 rounded shadow-sm mb-3"><label class="form-label fw-semibold">Danh mục</label><input type="text" class="form-control" placeholder="Danh mục..."/></div>
+          <div class="bg-white p-4 rounded shadow-sm"><label class="form-label fw-semibold">Tags</label><input type="text" class="form-control" placeholder="Tag1, Tag2..."/></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const variantBody = document.getElementById("variant-body");
+      const optionsArea = document.getElementById("options-area");
+const addOptionBtn = document.getElementById("add-option");
+
+      function getOptions() {
+        const options = [];
+        document.querySelectorAll(".option-box").forEach(box => {
+          const name = box.querySelector(".option-name").value.trim();
+          if (!name) return;
+          const values = [];
+          box.querySelectorAll(".option-value").forEach(v => {
+            const val = v.value.trim();
+            if (val) values.push(val);
+          });
+          if (values.length) options.push({ name, values });
+        });
+        return options;
+      }
+
+      function cartesian(arr) {
+        return arr.reduce((a, b) => a.flatMap(d => b.values.map(e => ({ ...d, [b.name]: e }))), [{}]);
+      }
+
+      function generateVariantTable() {
+        const options = getOptions();
+        variantBody.innerHTML = "";
+        if (!options.length) return;
+        const combinations = cartesian(options);
+        combinations.forEach((combo, idx) => {
+          const variantName = Object.entries(combo).map(([k, v]) => `${k}: ${v}`).join(" | ");
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${variantName}</td>
+            <td><input type="number" class="form-control form-control-sm text-center" value="0"/></td>
+            <td><input type="number" class="form-control form-control-sm text-center" value="0"/></td>
+            <td><input type="text" class="form-control form-control-sm text-center" value="SKU${idx+1}"/></td>
+          `;
+          variantBody.appendChild(row);
+        });
+      }
+
+      
+// Thêm option mới
+addOptionBtn.addEventListener("click", () => {
+  const optionBox = document.createElement("div");
+  optionBox.className = "option-box";
+  optionBox.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <label class="form-label fw-semibold mb-1">Option name</label>
+        <input type="text" class="form-control option-name" placeholder="VD: Màu sắc, Kích cỡ..." />
+      </div>
+      <button class="btn btn-outline-danger btn-sm remove-option">Xóa option</button>
+    </div>
+    <div class="value-area">
+      <label class="form-label fw-semibold mb-2">Option values</label>
+      <div class="value-list mb-2">
+        <div class="d-flex value-item mb-2">
+          <input type="text" class="form-control option-value" placeholder="Nhập giá trị (VD: Đỏ)" />
+          <button class="btn btn-outline-danger btn-sm remove-value">✕</button>
+        </div>
+      </div>
+      <button class="btn btn-outline-primary btn-sm add-value">+ Thêm giá trị</button>
+    </div>
+  `;
+  optionsArea.appendChild(optionBox);
+  generateVariantTable();
+});
+
+      document.addEventListener("input", e => {
+        if (e.target.classList.contains("option-name") || e.target.classList.contains("option-value")) {
+          generateVariantTable();
+        }
+      });
+
+      document.addEventListener("click", e => {
+        if (e.target.classList.contains("remove-option")) {
+          e.target.closest(".option-box").remove();
+          generateVariantTable();
+        }
+        if (e.target.classList.contains("add-value")) {
+          const valueList = e.target.closest(".value-area").querySelector(".value-list");
+          const newValue = document.createElement("div");
+          newValue.className = "d-flex value-item mb-2";
+          newValue.innerHTML = `
+            <input type="text" class="form-control option-value" placeholder="Nhập giá trị (VD: Đỏ)"/>
+            <button class="btn btn-outline-danger btn-sm remove-value">✕</button>`;
+          valueList.appendChild(newValue);
+          generateVariantTable();
+        }
+        if (e.target.classList.contains("remove-value")) {
+          e.target.closest(".value-item").remove();
+          generateVariantTable();
+        }
+      });
+
+      document.querySelectorAll(".image-item").forEach(item => {
+        item.addEventListener("click", () => {
+          document.querySelectorAll(".image-item").forEach(i => i.classList.remove("selected"));
+          item.classList.add("selected");
+        });
+      });
+    </script>
+  </body>
+</html>

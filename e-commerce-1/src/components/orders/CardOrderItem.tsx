@@ -1,10 +1,9 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import CardStatusItem from "./CardStatusItem";
-         
+import { formatDateTime } from "../../assets/data/FunctionData";
 type CardOrderItemProps = {
-  id: string;
-  date: string | Date;
+  id: number;
+  date: string ;
   customer: string;
   phone: string;
   total: number;
@@ -12,20 +11,6 @@ type CardOrderItemProps = {
   paymentMethod: string;
 };
 
-function formatDateTime(date: string | Date) {
-  const d = typeof date === "string" ? new Date(date) : date;
-
-  return d
-    .toLocaleString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    })
-    .replace(",", " -");
-}
 
 export default function CardOrderItem({
   id,
@@ -49,9 +34,12 @@ export default function CardOrderItem({
       </td>
       <td>{paymentMethod}</td>
       <td>
-        <button className="btn btn-sm btn-primary">
-          <Link to={`/seller/orders/${id}`} className="text-white text-decoration-none">Chi tiết</Link> 
-        </button>
+        <Link
+          to={`/seller/orders/orderDetail/${id}`}
+          className="btn btn-sm btn-outline-primary text-decoration-none"
+        >
+          Chi tiết
+        </Link>
       </td>
     </tr>
   );

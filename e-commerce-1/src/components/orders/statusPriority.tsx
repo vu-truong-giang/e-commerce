@@ -1,6 +1,7 @@
 export const statusPriority = {
-    "Chờ xác nhận": 1,
-    "Đang giao": 2,
-    "Đã hủy": 3,
-    "Hoàn tất": 4,
+    "pending": 1,
+    "confirmed": 2,
+    "shipping": 3,
+    "canceled": 4,
+    "completed": 5,
   };
