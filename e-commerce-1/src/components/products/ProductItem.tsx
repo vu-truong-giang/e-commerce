@@ -55,7 +55,7 @@ export default function ProductItem({
       <td className="text-center">
         <div className="d-flex justify-content-center gap-2">
           <Link
-            to={`/seller/products/${id}`}
+            to={`/seller/products/productDetail/${id}`}
             className="btn btn-sm btn-outline-primary"
           >
             Xem chi tiết

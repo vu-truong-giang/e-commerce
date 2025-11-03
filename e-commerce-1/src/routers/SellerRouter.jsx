@@ -17,8 +17,8 @@ export const SellerRouter = (
     <Route path="orders" element={<Orders />} />
     <Route path="orders/orderDetail/:id" element={<OrderDetail />} />
     <Route path="products" element={<Products />} />
-    <Route path="products/productDetail" element={<ProductDetail />} />
-    <Route path="products/:id" element={<ProductDetail />} />
+    <Route path="products/productDetail/:id" element={<ProductDetail />} />
+    <Route path="products/new" element={<ProductDetail />} />
     <Route path="report" element={<Report />} />
     <Route path="revenue" element={<Revenue />} />
     <Route path="settings" element={<Settings />} />

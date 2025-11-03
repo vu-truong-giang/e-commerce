@@ -12,7 +12,7 @@ export default function Products() {
       {/* --- Header --- */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="fw-bold">Quản lý sản phẩm</h3>
-        <Link to={"/seller/products/productDetail"}
+        <Link to={"/seller/products/new"}
           className="btn btn-primary rounded-pill px-4"
           
         >

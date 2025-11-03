@@ -1,32 +1,31 @@
 const productData = {
   users: [
-     {
-    id: 1,
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-    password: "$2b$10$hash123abc...",
-    phone: "0905123456",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    role: "buyer",
-    status: "active",
-    last_login: "2025-10-24T10:15:00Z",
-    created_at: "2025-10-01T09:00:00Z",
-    updated_at: "2025-10-24T10:15:00Z",
-  },
-  {
-    id: 2,
-    name: "Trần Thị B",
-    email: "tranthib@example.com",
-    password: "$2b$10$hash456def...",
-    phone: "0912345678",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    role: "buyer",
-    status: "active",
-    last_login: "2025-10-20T08:45:00Z",
-    created_at: "2025-10-02T11:00:00Z",
-    updated_at: "2025-10-20T08:45:00Z",
-  },
-
+    {
+      id: 1,
+      name: "Nguyễn Văn A",
+      email: "nguyenvana@example.com",
+      password: "$2b$10$hash123abc...",
+      phone: "0905123456",
+      avatar: "https://i.pravatar.cc/150?img=1",
+      role: "buyer",
+      status: "active",
+      last_login: "2025-10-24T10:15:00Z",
+      created_at: "2025-10-01T09:00:00Z",
+      updated_at: "2025-10-24T10:15:00Z",
+    },
+    {
+      id: 2,
+      name: "Trần Thị B",
+      email: "tranthib@example.com",
+      password: "$2b$10$hash456def...",
+      phone: "0912345678",
+      avatar: "https://i.pravatar.cc/150?img=2",
+      role: "buyer",
+      status: "active",
+      last_login: "2025-10-20T08:45:00Z",
+      created_at: "2025-10-02T11:00:00Z",
+      updated_at: "2025-10-20T08:45:00Z",
+    },
   ],
   sellers: [
     {
@@ -44,7 +43,7 @@ const productData = {
       shop_id: 1,
       name: "Áo thun nam cổ tròn",
       description: "Áo thun cotton 100%, co giãn 4 chiều, thoáng mát.",
-      
+
       images: ["shirt1.jpg", "shirt2.jpg"],
       created_at: "2025-10-26T10:00:00Z",
     },
@@ -58,10 +57,31 @@ const productData = {
     },
   ],
 
-  categorys: [
-    { id: 1, product_id: 1 , name: "Áo thun" },
-    { id: 2, product_id: 2 , name: "Quần jean" },
+   // -----------------------------
+  // CATEGORIES có cấu trúc phân tầng
+  // -----------------------------
+  categories: [
+    // Danh mục cha
+    { id: 1, name: "Thời trang nam", slug: "thoi-trang-nam", parent_id: null, level: 1, sort_order: 1, status: "active" },
+    { id: 2, name: "Thời trang nữ", slug: "thoi-trang-nu", parent_id: null, level: 1, sort_order: 2, status: "active" },
+
+    // Danh mục con
+    { id: 3, name: "Áo thun", slug: "ao-thun", parent_id: 1, level: 2, sort_order: 1, status: "active", product_id: 1 },
+    { id: 4, name: "Quần jean", slug: "quan-jean", parent_id: 1, level: 2, sort_order: 2, status: "active", product_id: 2 },
+
+    // Danh mục cấp sâu hơn (nếu muốn)
+    { id: 5, name: "Áo thun cổ tròn", slug: "ao-thun-co-tron", parent_id: 3, level: 3, sort_order: 1, status: "active", product_id: 1 },
   ],
+  // ... trong productData
+  product_categories: [
+    // Áo thun nam (product id 1) liên kết với Áo thun (category id 3) và Áo thun cổ tròn (id 5)
+    { product_id: 1, category_id: 3 },
+    { product_id: 1, category_id: 5 },
+
+    // Quần jean nam (product id 2) liên kết với Quần jean (category id 4)
+    { product_id: 2, category_id: 4 },
+  ],
+  // ...
 
   product_options: [
     { id: 1, product_id: 1, name: "Màu sắc" },
@@ -82,18 +102,34 @@ const productData = {
     {
       id: 1,
       product_id: 1,
-      sku: "TS-BLACK-M",
-      price: 199000,
-      stock: 50,
       option_combination: { "Màu sắc": "Đen", "Kích cỡ": "M" },
+      price: 250000,
+      stock: 10,
+      sku: "SKU-1",
     },
     {
       id: 2,
       product_id: 1,
-      sku: "TS-WHITE-L",
-      price: 2000000,
-      stock: 40,
+      option_combination: { "Màu sắc": "Đen", "Kích cỡ": "L" },
+      price: 250000,
+      stock: 10,
+      sku: "SKU-2",
+    },
+    {
+      id: 3,
+      product_id: 1,
+      option_combination: { "Màu sắc": "Trắng", "Kích cỡ": "M" },
+      price: 250000,
+      stock: 10,
+      sku: "SKU-3",
+    },
+    {
+      id: 4,
+      product_id: 1,
       option_combination: { "Màu sắc": "Trắng", "Kích cỡ": "L" },
+      price: 250000,
+      stock: 10,
+      sku: "SKU-4",
     },
     {
       id: 3,
@@ -137,7 +173,7 @@ const productData = {
     },
   ],
 
-   orders: [
+  orders: [
     {
       id: 1,
       user_id: 1,
@@ -224,11 +260,11 @@ const productData = {
 };
 
 const statusPriority = {
-    "pending": 1,
-    "confirmed": 2,
-    "shipping": 3,
-    "canceled": 4,
-    "completed": 5,
-  };
+  pending: 1,
+  confirmed: 2,
+  shipping: 3,
+  canceled: 4,
+  completed: 5,
+};
 export default productData;
-export { productData , statusPriority };
+export { productData, statusPriority };
