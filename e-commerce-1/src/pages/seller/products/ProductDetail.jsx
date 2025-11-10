@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import productData from "../../../assets/data/ProductData";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import ProductCategory from "../../../components/products/ProductCategory";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -13,11 +14,18 @@ export default function ProductDetail() {
     variants: [],
   });
   const [variants, setVariants] = useState([]);
+  const [categoryName, setCategoryName] = useState("");
 
   useEffect(() => {
     if (id) {
       const product = productData.products.find((p) => p.id == id);
       if (product) {
+        const category = productData.categories.find(
+          (c) => c.id == product.category_id
+        );
+
+        setCategoryName(category ? category.name : "");
+
         const optionsWithValues = productData.product_options
           .filter((opt) => opt.product_id == id)
           .map((opt) => {
@@ -38,6 +46,7 @@ export default function ProductDetail() {
         });
       }
     } else {
+      setCategoryName("");
       setProductInfo({
         title: "",
         options: [{ name: "", values: [""] }],
@@ -45,6 +54,7 @@ export default function ProductDetail() {
       });
     }
   }, [id]);
+  console.log(categoryName)
 
   // 🧠 Cập nhật state variants khi productInfo thay đổi
   useEffect(() => {
@@ -55,50 +65,51 @@ export default function ProductDetail() {
 
   // 🧩 Hàm sinh variant từ options
   const getVariants = () => {
-  const { options } = productInfo;
-  if (!options.length) return [];
+    const { options } = productInfo;
+    const validOptions = options.filter(
+      (opt) => opt.name.trim() && opt.values.some((v) => v.trim() !== "")
+    );
 
-  
-  const combine = (arr) =>
-    arr.reduce(
-      (acc, opt) => {
-        const res = [];
-        acc.forEach((a) => {
-          opt.values.forEach((val) => {
-            res.push({ ...a, [opt.name]: val });
+    if (!validOptions.length) return [];
+    console.log(validOptions);
+    const combine = (arr) =>
+      arr.reduce(
+        (acc, opt) => {
+          const res = [];
+          acc.forEach((a) => {
+            opt.values.forEach((val) => {
+              res.push({ ...a, [opt.name]: val });
+            });
           });
-        });
-        return res;
-      },
-      [{}]
-    );
+          return res;
+        },
+        [{}]
+      );
 
-  const optionCombos = combine(options);
+    const optionCombos = combine(options);
 
-  return optionCombos.map((comb) => {
-    // ✅ tìm trong existingVariants xem có tổ hợp nào trùng không
-    const existing = productInfo.variants.find(
-      (v) =>
-        JSON.stringify(v.option_combination) === JSON.stringify(comb)
-    );
+    return optionCombos.map((comb) => {
+      // ✅ tìm trong existingVariants xem có tổ hợp nào trùng không
+      const existing = productInfo.variants.find(
+        (v) => JSON.stringify(v.option_combination) === JSON.stringify(comb)
+      );
 
-    // ✅ nếu có → gán giá trị cũ, nếu không → mặc định = 0
-    return existing
-      ? {
-          option_combination: comb,
-          price: existing.price,
-          stock: existing.stock,
-          sku: existing.sku,
-        }
-      : {
-          option_combination: comb,
-          price: 0,
-          stock: 0,
-          sku: "",
-        };
-  });
-};
-
+      // ✅ nếu có → gán giá trị cũ, nếu không → mặc định = 0
+      return existing
+        ? {
+            option_combination: comb,
+            price: existing.price,
+            stock: existing.stock,
+            sku: existing.sku,
+          }
+        : {
+            option_combination: comb,
+            price: 0,
+            stock: 0,
+            sku: "",
+          };
+    });
+  };
 
   // 🧠 Khi option thay đổi → sinh lại variant, giữ lại giá cũ
   useEffect(() => {
@@ -114,16 +125,6 @@ export default function ProductDetail() {
     setVariants(merged);
   }, [productInfo.options]);
 
-  useEffect(() => {
-  console.log("Loaded productInfo:", productInfo);
-  console.log("Current variant:", variants);
-
-  console.log("Generated variants:", getVariants());
-}, [variants]);
-
-
-  
-
   const handleOptionNameChange = (index, value) => {
     const newOptions = [...productInfo.options];
     newOptions[index].name = value;
@@ -136,9 +137,12 @@ export default function ProductDetail() {
     setProductInfo({ ...productInfo, options: newOptions });
   };
   const handleVariantChange = (index, field, value) => {
-    const newVariants = [...productInfo.variants];
-    newVariants[index][field] = value;
-    setProductInfo({ ...productInfo, variants: newVariants });
+    setVariants((prev) => {
+      const updated = [...prev];
+      if (!updated[index]) return prev; // tránh lỗi undefined
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
   };
 
   const addOption = () => {
@@ -193,12 +197,19 @@ export default function ProductDetail() {
       </nav>
 
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <h3 className="fw-semibold">
+        {/* Tiêu đề bên trái */}
+
+        <h3 className="fw-semibold mb-0 me-3">
           {id ? `Chi tiết sản phẩm - ID: ${id}` : "Tạo sản phẩm mới"}
         </h3>
-        <button className="btn btn-primary px-4">
-          {id ? "Cập nhật" : "Lưu sản phẩm"}
-        </button>
+
+        {/* Nút lưu / cập nhật bên phải */}
+        <Link
+          to="/seller/products"
+          className="btn btn-light btn-sm fw-medium border"
+        >
+          ← Quay lại
+        </Link>
       </div>
 
       <div className="row">
@@ -461,15 +472,10 @@ export default function ProductDetail() {
               placeholder="Phụ kiện nhà bếp, Tô - Chén - Dĩa"
             />
           </div>
+          
+          <ProductCategory id={id} />
+        
           <div className="bg-white p-4 rounded shadow-sm mb-3">
-            <label className="form-label fw-semibold">Danh mục</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Danh mục..."
-            />
-          </div>
-          <div className="bg-white p-4 rounded shadow-sm">
             <label className="form-label fw-semibold">Tags</label>
             <input
               type="text"
@@ -477,6 +483,21 @@ export default function ProductDetail() {
               placeholder="Tag1, Tag2..."
             />
           </div>
+          {/* Nút lưu / cập nhật bên phải */}
+          {id ? (
+            <div className="d-flex gap-2">
+              <button className="btn btn-primary px-4 rounded shadow-sm">
+                Cập nhật
+              </button>
+              <button className="btn btn-warning px-4 rounded shadow-sm">
+                Xóa sản phẩm
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-primary px-4 rounded shadow-sm">
+              Lưu sản phẩm
+            </button>
+          )}
         </div>
       </div>
     </div>

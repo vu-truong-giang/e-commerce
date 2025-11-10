@@ -32,12 +32,31 @@ export function getStockByProductId(productId) {
   return variants.reduce((total, v) => total + v.stock, 0);
 }
 
+
+
 export function getCategoryByProductId(productId) {
-  const category = productData.categorys.find(
-    (c) => c.product_id === productId
+  // Tìm tất cả các liên kết trong bảng trung gian
+  const productCategoryLinks = productData.product_categories.filter(
+    (pc) => pc.product_id === productId
   );
-  return category ? category.name : null;
+
+  // Nếu sản phẩm không có danh mục
+  if (productCategoryLinks.length === 0) return null;
+
+  // Lấy tên các category tương ứng
+  const categories = productCategoryLinks
+    .map((pc) => {
+      const category = productData.categories.find(
+        (c) => c.id === pc.category_id
+      );
+      return category ? category.name : null;
+    })
+    .filter(Boolean); // loại bỏ giá trị null
+
+  // Nếu có nhiều danh mục thì trả về mảng, còn 1 thì trả chuỗi
+  return categories.length === 1 ? categories[0] : categories;
 }
+
 
 export function formatDateTime(date) {
   const d = new Date(date);

@@ -9,7 +9,7 @@ import Revenue from "../pages/seller/Revenue";
 import Settings from "../pages/seller/Settings";
 import OrderDetail from "../pages/seller/orders/OrderDetail";
 import ProductDetail from "../pages/seller/products/ProductDetail";
-
+import CategoryManager from "../assets/data/categories"
 export const SellerRouter = (
   <Route path="/seller" element={<SellerLayout />}>
     <Route index element={<Dashboard />} />
@@ -19,6 +19,7 @@ export const SellerRouter = (
     <Route path="products" element={<Products />} />
     <Route path="products/productDetail/:id" element={<ProductDetail />} />
     <Route path="products/new" element={<ProductDetail />} />
+    <Route path="products/category" element={<CategoryManager />} />
     <Route path="report" element={<Report />} />
     <Route path="revenue" element={<Revenue />} />
     <Route path="settings" element={<Settings />} />

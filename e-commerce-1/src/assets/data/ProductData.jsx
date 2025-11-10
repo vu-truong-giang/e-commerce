@@ -57,29 +57,97 @@ const productData = {
     },
   ],
 
-   // -----------------------------
+  // -----------------------------
   // CATEGORIES có cấu trúc phân tầng
   // -----------------------------
+
   categories: [
-    // Danh mục cha
-    { id: 1, name: "Thời trang nam", slug: "thoi-trang-nam", parent_id: null, level: 1, sort_order: 1, status: "active" },
-    { id: 2, name: "Thời trang nữ", slug: "thoi-trang-nu", parent_id: null, level: 1, sort_order: 2, status: "active" },
-
-    // Danh mục con
-    { id: 3, name: "Áo thun", slug: "ao-thun", parent_id: 1, level: 2, sort_order: 1, status: "active", product_id: 1 },
-    { id: 4, name: "Quần jean", slug: "quan-jean", parent_id: 1, level: 2, sort_order: 2, status: "active", product_id: 2 },
-
-    // Danh mục cấp sâu hơn (nếu muốn)
-    { id: 5, name: "Áo thun cổ tròn", slug: "ao-thun-co-tron", parent_id: 3, level: 3, sort_order: 1, status: "active", product_id: 1 },
+    {
+      id: 1,
+      name: "Đồ điện tử",
+      slug: "do-dien-tu",
+      parent_id: null,
+      level: 1,
+      sort_order: 1,
+      status: "active",
+    },
+    {
+      id: 2,
+      name: "Phụ kiện",
+      slug: "phu-kien",
+      parent_id: null,
+      level: 1,
+      sort_order: 2,
+      status: "active",
+    },
+    {
+      id: 3,
+      name: "Thời trang",
+      slug: "thoi-trang",
+      parent_id: null,
+      level: 1,
+      sort_order: 3,
+      status: "active",
+    },
+    {
+      id: 4,
+      name: "Điện thoại di động",
+      slug: "dien-thoai",
+      parent_id: 1,
+      level: 2,
+      sort_order: 1,
+      status: "active",
+    },
+    {
+      id: 5,
+      name: "Máy tính bảng",
+      slug: "dien-thoai",
+      parent_id: 1,
+      level: 2,
+      sort_order: 2,
+      status: "active",
+    },
+    {
+      id: 6,
+      name: "Laptop văn phòng",
+      slug: "dien-thoai",
+      parent_id: 1,
+      level: 2,
+      sort_order: 3,
+      status: "active",
+    },
+    {
+      id: 7,
+      name: "Laptop gaming",
+      slug: "dien-thoai",
+      parent_id: 2,
+      level: 2,
+      sort_order: 2,
+      status: "active",
+    },
+    {
+      id: 8,
+      name: "Áo nam",
+      slug: "dien-thoai",
+      parent_id: 3,
+      level: 2,
+      sort_order: 1,
+      status: "active",
+    },
+    {
+      id: 9,
+      name: "Áo nữ",
+      slug: "dien-thoai",
+      parent_id: 3,
+      level: 2,
+      sort_order: 2,
+      status: "active",
+    },
   ],
   // ... trong productData
   product_categories: [
-    // Áo thun nam (product id 1) liên kết với Áo thun (category id 3) và Áo thun cổ tròn (id 5)
-    { product_id: 1, category_id: 3 },
-    { product_id: 1, category_id: 5 },
-
-    // Quần jean nam (product id 2) liên kết với Quần jean (category id 4)
-    { product_id: 2, category_id: 4 },
+    { product_id: 1, category_id: 8 },
+    { product_id: 2, category_id: 9 },
   ],
   // ...
 
@@ -104,7 +172,7 @@ const productData = {
       product_id: 1,
       option_combination: { "Màu sắc": "Đen", "Kích cỡ": "M" },
       price: 250000,
-      stock: 10,
+      stock: 100,
       sku: "SKU-1",
     },
     {

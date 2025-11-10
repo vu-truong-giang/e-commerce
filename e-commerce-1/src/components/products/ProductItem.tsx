@@ -21,6 +21,7 @@ export default function ProductItem({
   const minPrice = priceRange ? priceRange.minPrice : 0;
   const maxPrice = priceRange ? priceRange.maxPrice : 0;
 
+ 
   return (
     <tr key={id}>
       <td>{number}</td>

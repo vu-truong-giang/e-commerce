@@ -1,152 +1,106 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <title>Chọn danh mục phân tầng</title>
+  <meta charset="UTF-8">
+  <title>Quản lý danh mục phân cấp</title>
   <style>
-    body {
-      font-family: "Segoe UI", sans-serif;
-      background: #f9fafb;
-      margin: 40px;
-    }
-
-    h2 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .category-container {
-      display: flex;
-      gap: 20px;
+    body { font-family: Arial; padding: 20px; }
+    .category-box {
       border: 1px solid #ddd;
-      border-radius: 8px;
-      background: #fff;
-      padding: 16px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      width: fit-content;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      background: #fafafa;
     }
-
-    .category-column {
-      width: 200px;
-      border-right: 1px solid #eee;
-      padding-right: 10px;
+    .child-box { margin-left: 25px; }
+    .actions { margin-top: 6px; }
+    input[type="text"] {
+      padding: 5px;
+      width: 240px;
     }
-
-    .category-column:last-child {
-      border-right: none;
-    }
-
-    .category-column h4 {
-      margin-bottom: 10px;
-      font-size: 14px;
-      color: #666;
-      text-transform: uppercase;
-    }
-
-    .category-item {
-      padding: 6px 10px;
-      cursor: pointer;
-      border-radius: 4px;
-      margin-bottom: 4px;
-      transition: 0.2s;
-    }
-
-    .category-item:hover {
-      background-color: #f0f0f0;
-    }
-
-    .category-item.active {
-      background-color: #007bff;
-      color: white;
-    }
-
-    .result {
-      margin-top: 20px;
-      font-size: 15px;
-      color: #28a745;
-      font-weight: 500;
-    }
+    button { margin-left: 6px; }
   </style>
 </head>
 <body>
-  <h2>🛍️ Chọn danh mục cho sản phẩm</h2>
-  <div class="category-container">
-    <div class="category-column" id="level1">
-      <h4>Cấp 1</h4>
-      <div class="list"></div>
-    </div>
-    <div class="category-column" id="level2">
-      <h4>Cấp 2</h4>
-      <div class="list"></div>
-    </div>
-    <div class="category-column" id="level3">
-      <h4>Cấp 3</h4>
-      <div class="list"></div>
-    </div>
-  </div>
+  <h2>Quản lý danh mục phân cấp</h2>
+  <div id="categoryContainer"></div>
 
-  <div class="result" id="result">Danh mục đã chọn: (chưa chọn)</div>
+  <button id="addRootBtn">+ Thêm danh mục cấp 1</button>
 
   <script>
-    const categories = [
-      { id: 1, name: "Thời trang nam", parent_id: null },
-      { id: 2, name: "Áo", parent_id: 1 },
-      { id: 3, name: "Áo Polo", parent_id: 2 },
-      { id: 4, name: "Áo Sơ Mi", parent_id: 2 },
-      { id: 5, name: "Quần", parent_id: 1 },
-      { id: 6, name: "Thời trang nữ", parent_id: null },
-      { id: 7, name: "Váy", parent_id: 6 },
-      { id: 8, name: "Đầm Dạ Hội", parent_id: 6 },
+    // ✅ Dữ liệu mẫu ban đầu
+    let categories = [
+      {
+        id: 1, name: "Thời trang", children: [
+          { id: 2, name: "Áo quần nam", children: [] },
+          { id: 3, name: "Áo quần nữ", children: [] }
+        ]
+      },
+      {
+        id: 4, name: "Điện tử", children: [
+          { id: 5, name: "Điện thoại", children: [] },
+          { id: 6, name: "Laptop", children: [] }
+        ]
+      }
     ];
 
-    const level1 = document.querySelector("#level1 .list");
-    const level2 = document.querySelector("#level2 .list");
-    const level3 = document.querySelector("#level3 .list");
-    const result = document.getElementById("result");
-
-    function getChildren(parentId) {
-      return categories.filter(c => c.parent_id === parentId);
-    }
-
-    function renderList(container, items, level) {
+    // ✅ Hàm render toàn bộ danh mục
+    function renderCategories(list, container) {
       container.innerHTML = "";
-      items.forEach(item => {
+      list.forEach((cat, index) => {
         const div = document.createElement("div");
-        div.className = "category-item";
-        div.textContent = item.name;
-        div.onclick = () => handleClick(item, level, div);
+        div.className = "category-box";
+
+        div.innerHTML = `
+          <div>
+            <input type="text" value="${cat.name}" data-id="${cat.id}" />
+            <button class="deleteBtn">🗑️</button>
+            <button class="addChildBtn">+ Thêm con</button>
+          </div>
+        `;
+
+        // Container cho danh mục con
+        const childDiv = document.createElement("div");
+        childDiv.className = "child-box";
+        div.appendChild(childDiv);
+
+        renderCategories(cat.children, childDiv);
         container.appendChild(div);
+
+        // --- Gán sự kiện ---
+        div.querySelector(".deleteBtn").onclick = () => {
+          list.splice(index, 1);
+          renderRoot();
+        };
+
+        div.querySelector(".addChildBtn").onclick = () => {
+          const newId = Date.now();
+          cat.children.push({ id: newId, name: "Danh mục mới", children: [] });
+          renderRoot();
+        };
+
+        div.querySelector("input").oninput = (e) => {
+          cat.name = e.target.value;
+        };
       });
     }
 
-    function handleClick(item, level, element) {
-      document.querySelectorAll(`#level${level} .category-item`).forEach(e => e.classList.remove("active"));
-      element.classList.add("active");
-
-      if (level === 1) {
-        renderList(level2, getChildren(item.id), 2);
-        renderList(level3, [], 3);
-        result.textContent = "Danh mục đã chọn: (chưa chọn)";
-      } else if (level === 2) {
-        renderList(level3, getChildren(item.id), 3);
-        result.textContent = "Danh mục đã chọn: (chưa chọn)";
-      } else if (level === 3) {
-        const path = buildPath(item.id);
-        result.textContent = `✅ Danh mục đã chọn: ${path.join(" › ")}`;
-      }
+    // ✅ Render gốc
+    function renderRoot() {
+      const container = document.getElementById("categoryContainer");
+      renderCategories(categories, container);
+      console.log("Dữ liệu hiện tại:", categories);
     }
 
-    function buildPath(id) {
-      const path = [];
-      let current = categories.find(c => c.id === id);
-      while (current) {
-        path.unshift(current.name);
-        current = categories.find(c => c.id === current.parent_id);
-      }
-      return path;
-    }
+    // ✅ Thêm danh mục cấp 1
+    document.getElementById("addRootBtn").onclick = () => {
+      const newId = Date.now();
+      categories.push({ id: newId, name: "Danh mục mới", children: [] });
+      renderRoot();
+    };
 
-    renderList(level1, getChildren(null), 1);
+    // ✅ Khởi tạo
+    renderRoot();
   </script>
 </body>
 </html>
