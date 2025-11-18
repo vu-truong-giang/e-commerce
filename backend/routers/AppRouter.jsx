@@ -1,14 +1,17 @@
 // src/routers/AppRouter.jsx
-import { BrowserRouter, Routes, Route , Navigate} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SellerRouter } from "./SellerRouter";
+import LoginPage from "../../frontend/src/pages/seller/login/login.jsx";
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/seller" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-        
+        {/* Route Login */}
+        <Route path="/login" element={<LoginPage />} />
+
         {/* Import route Seller */}
         {SellerRouter}
 
