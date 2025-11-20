@@ -40,10 +40,6 @@ def test():
     logger.info("Test endpoint called")
     return {"status": "ok", "message": "Backend is running"}
 
-@app.get("/users")
-def get_users():
-    response = supabase.table("users").select("*").execute()
-    return response.data
 
 # ---------- Pydantic schema ----------
 class LoginIn(BaseModel):
@@ -62,7 +58,36 @@ class RegisterIn(BaseModel):
     email: EmailStr
     password: str
     confirm_password: str
-# ---------- API Endpoints ----------
+
+# ===== BODY MODEL =====
+class EmailCheck(BaseModel):
+    email: str
+
+
+# ===== API CHECK EMAIL =====
+@app.post("/api/check-email")
+async def check_email(payload: EmailCheck):
+    email = payload.email
+
+    try:
+        # Query bảng users trong Supabase
+        response = supabase.table("users").select("*").eq("email", email).execute()
+
+        if not response.data:
+            return {"exists": False}
+
+        # Lấy user
+        user = response.data[0]
+
+        return {
+            "exists": True,
+            "name": user.get("name"),
+            "role": user.get("role"),  # "buyer" | "seller"
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+# ---------- Login endpoint ----------
 @app.post("/login", response_model=UserOut)
 def login(data: LoginIn):
     try:
@@ -190,3 +215,37 @@ def register(user_data: RegisterIn):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+    
+
+#================================API user==========================
+@app.get("/seller/by-user/{user_id}")
+async def get_seller_by_user(user_id: int):
+    result = (
+        supabase.table("sellers")
+        .select("*")
+        .eq("user_id", user_id)
+        .maybe_single()
+        .execute()
+    )
+
+    if result.data is None:
+        return {
+            "exists": False,
+            "seller_id": None
+        }
+
+    return {
+        "exists": True,
+        "seller_id": result.data["id"]
+    }
+
+@app.get("/users/{user_id}")
+async def get_user_by_id(user_id: int):
+    result = (
+        supabase.table("users")
+        .select("*")
+        .eq("id", user_id)
+        .maybe_single()
+        .execute()
+    )
+    return result.data

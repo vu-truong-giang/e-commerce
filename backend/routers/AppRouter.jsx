@@ -2,6 +2,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SellerRouter } from "./SellerRouter";
 import LoginPage from "../../frontend/src/pages/seller/login/login.jsx";
+import { UserRouter } from "./UserRouter.jsx";
 
 export default function AppRouter() {
   return (
@@ -12,6 +13,9 @@ export default function AppRouter() {
         {/* Route Login */}
         <Route path="/login" element={<LoginPage />} />
 
+
+        {/* Import route Seller */}
+        {UserRouter}
         {/* Import route Seller */}
         {SellerRouter}
 

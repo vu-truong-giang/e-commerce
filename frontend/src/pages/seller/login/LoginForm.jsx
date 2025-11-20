@@ -1,73 +1,86 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { getSellerIdFromUserId , loginUser , checkEmailExists } from "../../../API/SellerAPI";
+
 
 export default function LoginForm() {
   const navigate = useNavigate();
-  const [showChoice, setShowChoice] = useState(false);
-  const [userData, setUserData] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailExists, setEmailExists] = useState(false);
+  const [role, setRole] = useState(null); // buyer | seller
+  const [selectedOption, setSelectedOption] = useState("buyer");
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const checkEmail = async () => {
+      if (!email) {
+        setEmailExists(false);
+        return;
+      }
+      setCheckingEmail(true);
+
+      const data = await checkEmailExists(email); 
+      
+      console.log("Email check:", data.exists);
+
+      setCheckingEmail(false);
+
+      if (data.exists) {
+        setEmailExists(true);
+        setRole(data.role); // buyer | seller
+      } else {
+        setEmailExists(false);
+        setRole(null);
+      }
+    };
+
+    const delay = setTimeout(checkEmail, 500); // debounce 0.5s
+    return () => clearTimeout(delay);
+  }, [email]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     console.log("Form submitted");
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+
+    if (!emailExists) {
+      alert("Email không tồn tại!");
+      return;
+    }
 
     try {
+      console.log("Sending login request");
+      console.log("Email:", email);
+      console.log("Password:", password);
       console.log("Sending login request to: /api/login");
       console.log("Payload:", { email, password });
-      
+
       // Thêm timeout 10 giây
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-      
-      const res = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-        signal: controller.signal,
-      });
-      
-      clearTimeout(timeoutId);
-      
-      console.log("Response received", res);
-      console.log("Response status:", res.status);
-      console.log("Response ok:", res.ok);
-
-      const data = await res.json();
-
+     
+      const data = await loginUser(email, password);
       console.log("Data parsed:", data);
-      
-      if (!res.ok) {
-        alert(data.detail || "Login failed");
-        return;
-      }
 
       // Lưu token nếu server trả về
       if (data.token) {
         localStorage.setItem("token", data.token);
       }
-
-      // Lưu user vào state để dùng trong modal
-      setUserData(data.user || data);
-
-      // Kiểm tra role
-      const role = data.user?.role || data.role;
-      console.log("User role:", role);
       
-      if (role === "seller") {
-        setShowChoice(true);
-      } else {
-        navigate("/user");
+    
+      if (selectedOption === "buyer") {
+        navigate(`/user/welcome/${data.id}`);
+      } else if (selectedOption === "seller") {
+        const sellerId = await getSellerIdFromUserId(data.id);
+        navigate(`/seller/dashboard/${sellerId}`);
       }
     } catch (err) {
       console.error("Error caught:", err);
       console.error("Error message:", err.message);
       console.error("Error name:", err.name);
-      
-      if (err.name === 'AbortError') {
+
+      if (err.name === "AbortError") {
         alert("Request timeout - Backend không phản hồi trong 10 giây");
       } else {
         alert("Error connecting to server: " + err.message);
@@ -81,47 +94,51 @@ export default function LoginForm() {
         <Form.Group className="mb-3">
           <Form.Label>Email</Form.Label>
           <Form.Control
-            name="email"
             type="email"
-            placeholder="Email"
+            placeholder="Nhập email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
+          {checkingEmail && <small>Đang kiểm tra email...</small>}
         </Form.Group>
 
         <Form.Group className="mb-3">
           <Form.Label>Password</Form.Label>
           <Form.Control
-            name="password"
             type="password"
-            placeholder="Password"
+            placeholder="Nhập mật khẩu"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </Form.Group>
 
-        <Button type="submit" variant="primary" className="w-100">
-          Login
+        {/* Hiện select khi email tồn tại */}
+        {/* Select chỉ hiện nếu role = seller */}
+        {role === "seller" && (
+          <Form.Group className="mb-3">
+            <Form.Label>Chọn chế độ đăng nhập</Form.Label>
+            <Form.Select
+              value={selectedOption}
+              onChange={(e) => setSelectedOption(e.target.value)}
+            >
+              <option value="">-- Chọn --</option>
+              <option value="seller">Seller</option>
+              <option value="buyer">Buyer</option>
+            </Form.Select>
+          </Form.Group>
+        )}
+
+        <Button
+          variant="primary"
+          className="w-100"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? "Đang đăng nhập..." : "Login"}
         </Button>
       </Form>
-
-      {/* Modal chọn trang */}
-      {userData && (
-        <Modal show={showChoice} onHide={() => setShowChoice(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Choose Dashboard</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>Chào {userData.name}, bạn muốn vào trang nào?</p>
-            <div className="d-flex gap-3 justify-content-center">
-              <Button variant="secondary" onClick={() => navigate("/user")}>
-                User Site
-              </Button>
-              <Button variant="primary" onClick={() => navigate("/seller")}>
-                Seller Dashboard
-              </Button>
-            </div>
-          </Modal.Body>
-        </Modal>
-      )}
     </>
   );
 }
