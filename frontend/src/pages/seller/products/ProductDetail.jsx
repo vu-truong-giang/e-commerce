@@ -1,132 +1,101 @@
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import productData from "../../../assets/data/ProductData";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import ProductCategory from "../../../components/products/ProductCategory";
-
+import { createProduct } from "../../../API/SellerAPI";
 export default function ProductDetail() {
-  const { id } = useParams();
+  const { sellerid , productid } = useParams();
 
   const [productInfo, setProductInfo] = useState({
-    title: "name",
+    name: "",
     description: "",
+    seller_id: parseInt(sellerid) || null,
     options: [{ name: "", values: [""] }],
-    variants: [],
+    variants: [{option_combination : {} , price : 0 , stock : 0 , sku : ""}],
   });
-  const [variants, setVariants] = useState([]);
-  const [categoryName, setCategoryName] = useState("");
 
   useEffect(() => {
-    if (id) {
-      const product = productData.products.find((p) => p.id == id);
-      if (product) {
-        const category = productData.categories.find(
-          (c) => c.id == product.category_id
-        );
-
-        setCategoryName(category ? category.name : "");
-
-        const optionsWithValues = productData.product_options
-          .filter((opt) => opt.product_id == id)
-          .map((opt) => {
-            const values = productData.product_option_values
-              .filter((v) => v.option_id == opt.id)
-              .map((v) => v.value);
-            return { name: opt.name, values };
-          });
-
-        const variants = productData.product_variants.filter(
-          (v) => v.product_id == id
-        );
-
-        setProductInfo({
-          title: product.name,
-          description: product.description,
-          options: optionsWithValues,
-          variants: variants,
-        });
-      }
+    if (productid) {
+      // TODO: Load product từ API
     } else {
-      setCategoryName("");
       setProductInfo({
-        title: "",
+        name: "",
         description: "",
+        seller_id: parseInt(sellerid) || null,
         options: [{ name: "", values: [""] }],
-        variants: [],
+        variants: [{option_combination : {} , price : 0 , stock : 0 , sku : ""}],
       });
     }
-  }, [id]);
-  console.log(categoryName);
+  }, [productid, sellerid]);
+
 
   // 🧠 Cập nhật state variants khi productInfo thay đổi
-  useEffect(() => {
-    if (productInfo?.variants) {
-      setVariants(productInfo.variants);
-    }
-  }, [productInfo]);
+useEffect(() => {
+  if (productInfo?.variants) {
+    // giữ nguyên productInfo, chỉ set lại variants nếu cần
+    setProductInfo((prev) => ({ ...prev, variants: productInfo.variants }));
+  }
+}, [productInfo?.variants]);
 
-  // 🧩 Hàm sinh variant từ options
-  const getVariants = () => {
-    const { options } = productInfo;
-    const validOptions = options.filter(
-      (opt) => opt.name.trim() && opt.values.some((v) => v.trim() !== "")
+// Hàm so sánh 2 object option_combination
+const isSameCombo = (a, b) => {
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+  return keysA.every((key) => a[key] === b[key]);
+};
+
+// Hàm sinh tất cả tổ hợp từ options
+const generateOptionCombos = (options) => {
+  const validOptions = options?.filter(
+    (opt) => opt.name.trim() && opt.values.some((v) => v.trim() !== "")
+  );
+  if (!validOptions || !validOptions.length) return [];
+
+  // Kết hợp các options
+  const combine = (arr) =>
+    arr.reduce(
+      (acc, opt) => {
+        const res = [];
+        acc.forEach((a) => {
+          opt.values.forEach((val) => {
+            res.push({ ...a, [opt.name]: val });
+          });
+        });
+        return res;
+      },
+      [{}]
     );
 
-    if (!validOptions.length) return [];
-    console.log(validOptions);
-    const combine = (arr) =>
-      arr.reduce(
-        (acc, opt) => {
-          const res = [];
-          acc.forEach((a) => {
-            opt.values.forEach((val) => {
-              res.push({ ...a, [opt.name]: val });
-            });
-          });
-          return res;
-        },
-        [{}]
-      );
+  return combine(validOptions);
+};
 
-    const optionCombos = combine(options);
+// Hàm merge với variants cũ, giữ giá trị cũ
+const mergeVariants = (options, existingVariants) => {
+  const combos = generateOptionCombos(options);
 
-    return optionCombos.map((comb) => {
-      // ✅ tìm trong existingVariants xem có tổ hợp nào trùng không
-      const existing = productInfo.variants.find(
-        (v) => JSON.stringify(v.option_combination) === JSON.stringify(comb)
-      );
+  return combos.map((comb) => {
+    const existing = existingVariants?.find((v) =>
+      isSameCombo(v.option_combination, comb)
+    );
+    return existing
+      ? { ...existing, option_combination: comb } // giữ giá trị cũ
+      : { option_combination: comb, price: 0, stock: 0, sku: "" }; // default
+  });
+};
 
-      // ✅ nếu có → gán giá trị cũ, nếu không → mặc định = 0
-      return existing
-        ? {
-            option_combination: comb,
-            price: existing.price,
-            stock: existing.stock,
-            sku: existing.sku,
-          }
-        : {
-            option_combination: comb,
-            price: 0,
-            stock: 0,
-            sku: "",
-          };
-    });
-  };
+// 🧠 Khi options thay đổi → sinh lại variant, giữ lại giá cũ
+useEffect(() => {
+  if (!productInfo?.options) return;
 
-  // 🧠 Khi option thay đổi → sinh lại variant, giữ lại giá cũ
-  useEffect(() => {
-    const newVariants = getVariants();
-    const merged = newVariants.map((newV) => {
-      const oldV = variants.find(
-        (v) =>
-          JSON.stringify(v.option_combination) ===
-          JSON.stringify(newV.option_combination)
-      );
-      return oldV ? { ...newV, ...oldV } : newV;
-    });
-    setVariants(merged);
-  }, [productInfo.options]);
+  const updatedVariants = mergeVariants(
+    productInfo.options,
+    productInfo.variants || []
+  );
+
+  setProductInfo((prev) => ({ ...prev, variants: updatedVariants }));
+}, [productInfo?.options]); // chỉ chạy khi options thay đổi
 
   const handleOptionNameChange = (index, value) => {
     const newOptions = [...productInfo.options];
@@ -140,13 +109,15 @@ export default function ProductDetail() {
     setProductInfo({ ...productInfo, options: newOptions });
   };
   const handleVariantChange = (index, field, value) => {
-    setVariants((prev) => {
-      const updated = [...prev];
-      if (!updated[index]) return prev; // tránh lỗi undefined
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
-  };
+  setProductInfo((prev) => {
+    const updatedVariants = [...(prev.variants || [])]; // copy variants cũ
+    if (!updatedVariants[index]) return prev; // tránh lỗi undefined
+    updatedVariants[index] = { ...updatedVariants[index], [field]: value }; // cập nhật field
+
+    return { ...prev, variants: updatedVariants }; // trả về toàn bộ object productInfo mới
+  });
+};
+
 
   const addOption = () => {
     setProductInfo({
@@ -194,7 +165,7 @@ export default function ProductDetail() {
             </Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">
-            Chi tiết{id ? ` #${id}` : ""}
+            Chi tiết{productid ? ` #${productid}` : ""}
           </li>
         </ol>
       </nav>
@@ -203,12 +174,12 @@ export default function ProductDetail() {
         {/* Tiêu đề bên trái */}
 
         <h3 className="fw-semibold mb-0 me-3">
-          {id ? `Chi tiết sản phẩm - ID: ${id}` : "Tạo sản phẩm mới"}
+          {productid ? `Chi tiết sản phẩm - ID: ${productid}` : "Tạo sản phẩm mới"}
         </h3>
 
         {/* Nút lưu / cập nhật bên phải */}
         <Link
-          to="/seller/products"
+          to={`/seller/${sellerid}/products`}
           className="btn btn-light btn-sm fw-medium border"
         >
           ← Quay lại
@@ -224,9 +195,9 @@ export default function ProductDetail() {
               type="text"
               className="form-control mb-3"
               placeholder="Nhập tiêu đề sản phẩm..."
-              value={productInfo.title}
+              value={productInfo.name}
               onChange={(e) =>
-                setProductInfo({ ...productInfo, title: e.target.value })
+                setProductInfo({ ...productInfo, name: e.target.value })
               }
             />
             <label className="form-label fw-semibold">Mô tả sản phẩm</label>
@@ -374,14 +345,14 @@ export default function ProductDetail() {
                   </tr>
                 </thead>
                 <tbody>
-                  {variants.length === 0 ? (
+                  {productInfo.variants.length === 0 ? (
                     <tr>
                       <td colSpan="4" className="text-center text-muted">
                         Chưa có biến thể nào được tạo
                       </td>
                     </tr>
                   ) : (
-                    variants.map((variant, idx) => (
+                    productInfo.variants.map((variant, idx) => (
                       <tr key={idx}>
                         <td>
                           {Object.entries(variant.option_combination || {})
@@ -480,7 +451,7 @@ export default function ProductDetail() {
             />
           </div>
 
-          <ProductCategory id={id} />
+          <ProductCategory id={productid} />
 
           <div className="bg-white p-4 rounded shadow-sm mb-3">
             <label className="form-label fw-semibold">Tags</label>
@@ -491,7 +462,7 @@ export default function ProductDetail() {
             />
           </div>
           {/* Nút lưu / cập nhật bên phải */}
-          {id ? (
+          {productid ? (
             <div className="d-flex gap-2">
               <button className="btn btn-primary px-4 rounded shadow-sm">
                 Cập nhật
@@ -501,7 +472,22 @@ export default function ProductDetail() {
               </button>
             </div>
           ) : (
-            <button className="btn btn-primary px-4 rounded shadow-sm">
+            <button className="btn btn-primary px-4 rounded shadow-sm" onClick={async () => {
+              const result = await createProduct(productInfo);
+              if (result) {
+                alert("✅ Tạo sản phẩm thành công!");
+                // Reset form
+                setProductInfo({
+                  name: "",
+                  description: "",
+                  seller_id: parseInt(sellerid) || null,
+                  options: [{ name: "", values: [""] }],
+                  variants: [{option_combination : {} , price : 0 , stock : 0 , sku : ""}],
+                });
+              } else {
+                alert("❌ Tạo sản phẩm thất bại. Vui lòng thử lại!");
+              }
+            }}>
               Lưu sản phẩm
             </button>
           )}

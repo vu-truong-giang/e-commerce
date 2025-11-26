@@ -2,15 +2,15 @@
   "private": true,
   "scripts": {
     "install:all": "npm run install:frontend && npm run install:backend",
-
     "install:frontend": "cd frontend && npm install",
     "install:backend": "cd backend && pip install -r requirements.txt",
-
     "dev": "concurrently \"npm --prefix frontend run dev\" \"npm run dev:backend\"",
-
     "dev:backend": "cd backend && uvicorn main:app --reload --port 8000"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "axios": "^1.13.2"
   }
 }

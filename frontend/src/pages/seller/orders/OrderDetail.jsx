@@ -1,40 +1,30 @@
 import { useParams, Link } from "react-router-dom";
-import productData from "../../../assets/data/ProductData";
 
-import ProductItem from "../../../components/products/ProductItem";
+
+import React, { useState } from "react";
 import CardStatusItem from "../../../components/orders/CardStatusItem";
 import PrintOrder from "./PrintOrder";
-import { formatDateTime, getCustomerNameById, getCustomerPhoneById, getOrderAddressByShipppingAddressId, getPaymentMethodByOrderId } from "../../../assets/data/FunctionData";
+import { formatDateTime } from "../../../assets/data/FunctionData";
 import ProductVariantItem from "../../../components/products/ProductVariantItem";
 
+import { useEffect } from "react";
+
+import { getOrderDetailItemsByOrderId } from "../../../API/SellerAPI";
 
 
 export default function OrderDetail() {
-  const { id } = useParams(); // Lấy id từ URL
-  // match id robustly: allow numeric ids or string ids like "ORD-..."
-  const order = productData.orders.find((o) => String(o.id) === String(id) || String(o.id).endsWith(String(id)));
+  const { order_id } = useParams(); // Lấy id từ URL
+  
+  const [order, setOrder] = useState({});
 
-  // Nếu không tìm thấy đơn hàng
-  if (!order) {
-    return (
-      <div className="p-4">
-        <h2 className="text-xl font-semibold text-red-600">
-          Đơn hàng không tồn tại
-        </h2>
-        <Link
-          to="/seller/orders"
-          className="text-blue-600 underline mt-4 block"
-        >
-          ← Quay lại danh sách đơn hàng
-        </Link>
-      </div>
-    );
-  }
-
-  // ✅ Đặt state sau khi đã có order
-
-  // ✅ Hàm xác nhận đơn
-
+  useEffect(() => {
+    async function fetchOrder() {
+      const orderDetail  = await getOrderDetailItemsByOrderId(order_id);
+      setOrder(orderDetail);
+    }
+    fetchOrder();
+  }, [order_id]);
+  
   return (
     <div className="container py-5">
       {/* Header */}
@@ -58,13 +48,13 @@ export default function OrderDetail() {
             </div>
             <div className="card-body">
               <p>
-                <strong>Tên khách hàng:</strong> {getCustomerNameById(order.user_id)}
+                <strong>Tên khách hàng:</strong> {order.shipping_addresses?.receiver_name}
               </p>
               <p>
-                <strong>Số điện thoại:</strong> {getCustomerPhoneById(order.user_id)}
+                <strong>Số điện thoại:</strong> {order.shipping_addresses?.phone}
               </p>
               <p>
-                <strong>Phương thức thanh toán:</strong> {getPaymentMethodByOrderId(order.id)}
+                <strong>Phương thức thanh toán:</strong> {order.payments?.method}
               </p>
             </div>
           </div>
@@ -87,7 +77,7 @@ export default function OrderDetail() {
               </p>
 
               <p>
-                <strong>Địa chỉ nhận:</strong> <span>{getOrderAddressByShipppingAddressId(order.shipping_addresses_id)}</span>
+                <strong>Địa chỉ nhận:</strong> <span>{order.shipping_addresses.address} - {order.shipping_addresses.ward}/{order.shipping_addresses.district}/{order.shipping_addresses.city}</span>
               </p>
             </div>
           </div>

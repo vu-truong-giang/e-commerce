@@ -73,7 +73,7 @@ export default function LoginForm() {
         navigate(`/user/welcome/${data.id}`);
       } else if (selectedOption === "seller") {
         const sellerId = await getSellerIdFromUserId(data.id);
-        navigate(`/seller/dashboard/${sellerId}`);
+        navigate(`/seller/${sellerId}/dashboard`);
       }
     } catch (err) {
       console.error("Error caught:", err);

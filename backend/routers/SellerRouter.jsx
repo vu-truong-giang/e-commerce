@@ -11,9 +11,8 @@ import OrderDetail from "../../frontend/src/pages/seller/orders/OrderDetail";
 import ProductDetail from "../../frontend/src/pages/seller/products/ProductDetail";
 import CategoryManager from "../../frontend/src/pages/seller/categories/categories";
 export const SellerRouter = (
-  <Route path="/seller" element={<SellerLayout />}>
-    <Route index element={<Dashboard />} />
-    <Route path="dashboard/:sellerID" element={<Dashboard />} />
+  <Route path="/seller/:sellerid" element={<SellerLayout />}>
+    <Route path="dashboard" element={<Dashboard />} />
     <Route path="orders" element={<Orders />} />
     <Route path="orders/orderDetail/:id" element={<OrderDetail />} />
     <Route path="products" element={<Products />} />

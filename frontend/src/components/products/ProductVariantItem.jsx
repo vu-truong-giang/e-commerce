@@ -3,8 +3,8 @@ import {
   handleOptionCombination,
 } from "../../assets/data/FunctionData";
 
-export default function ProductVariantItem({ id }) {
-  const data = getDataForOrderDetailItemsByOrderId(id);
+export default function ProductVariantItem({ order_id }) {
+  const data = getDataForOrderDetailItemsByOrderId(order_id);
   
   return (
     <>

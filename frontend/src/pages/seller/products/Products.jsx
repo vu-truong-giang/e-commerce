@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link , useParams} from "react-router-dom";
 import { productData } from "../../../assets/data/ProductData";
 import  ProductItem  from "../../../components/products/ProductItem";
 
@@ -6,20 +6,21 @@ const products = productData.products;
 
 export default function Products() {
   
-
+  const {sellerid} =  useParams();
+  
   return (
     <div className="container py-4">
       {/* --- Header --- */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h3 className="fw-bold">Quản lý sản phẩm</h3>
         <div className="d-flex gap-1">
-          <Link to={"/seller/products/category"}
+          <Link to={`/seller/${sellerid}/products/category`}
           className="btn btn-outline-primary rounded-pill px-4"
           
         >
           + Bảng danh mục sản phẩm 
         </Link>
-        <Link to={"/seller/products/new"}
+        <Link to={`/seller/${sellerid}/products/new`}
           className="btn btn-primary rounded-pill px-4"
           
         >

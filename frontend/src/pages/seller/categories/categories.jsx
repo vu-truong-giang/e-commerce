@@ -1,12 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import productData from "../../../assets/data/ProductData";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import {
+  getAllCategories,
+  createCategory,
+  deleteCategory,
+} from "../../../API/SellerAPI";
 
 export default function CategoryManager() {
-  const [categories, setCategories] = useState(productData.categories);
+  const { sellerid } = useParams();
+
+  const [categories, setCategories] = useState([]);
   const [newName, setNewName] = useState("");
   const [parentId, setParentId] = useState(null);
+
+  // Gọi API bằng axios
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAllCategories();
+      setCategories(data);
+    };
+    fetchData();
+  }, []);
 
   // Xây dựng cây phân cấp từ danh sách
   const buildTree = (parentId = null) => {
@@ -21,21 +36,46 @@ export default function CategoryManager() {
   const categoryTree = buildTree();
 
   // Thêm danh mục mới
-  const handleAddCategory = () => {
-    if (!newName.trim()) return;
+  const handleAddCategory = async () => {
+    if (!newName.trim()) return alert("Tên danh mục không dc để trống!!!");
     const newCategory = {
-      id: Date.now(),
       name: newName,
       parent_id: parentId ? Number(parentId) : null,
+      sort_order: 0,
+      status: "active",
     };
-    setCategories([...categories, newCategory]);
+
+    const newCat = await createCategory(newCategory);
+
+    if (!newCat) {
+      alert("Tạo danh mục thất bại. Vui lòng thử lại.");
+      return;
+    }
+
+    // backend may return a single object or an array with the created item
+    const created = Array.isArray(newCat) ? newCat[0] : newCat;
+
+    setCategories([...categories, created]);
     setNewName("");
     setParentId(null);
   };
 
   // Xóa danh mục
   const handleDelete = (id) => {
-    setCategories(categories.filter((c) => c.id !== id && c.parent_id !== id));
+    if (!window.confirm("Bạn có chắc muốn xóa danh mục này?")) return;
+
+    deleteCategory(id)
+      .then((success) => {
+        if (success) {
+          // Xóa trên frontend
+          setCategories((prev) => prev.filter((c) => c.id !== id));
+        } else {
+          alert("Xóa danh mục thất bại. Vui lòng thử lại.");
+        }
+      })
+      .catch(() => {
+        alert("Có lỗi khi xóa danh mục!");
+      });
   };
 
   // Hiển thị phân cấp trong bảng
@@ -74,7 +114,10 @@ export default function CategoryManager() {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h3 className="mb-0">Quản lý danh mục</h3>
-        <Link to="/seller/products" className="btn btn-light btn-sm fw-medium border">
+        <Link
+          to={`/seller/${sellerid}/products`}
+          className="btn btn-light btn-sm fw-medium border"
+        >
           ← Quay lại
         </Link>
       </div>

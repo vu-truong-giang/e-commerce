@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState} from "react";
 import { Outlet, NavLink } from "react-router-dom";
 import * as bootstrap from "bootstrap";  
+import { useParams } from "react-router-dom";
 
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -13,6 +14,8 @@ import logo from "../assets/images/img_logo_light.png";
 import Sidebar from "../components/sidebar/Sidebar";
 
 export default function LayoutSeller() {
+  const { sellerid } = useParams();
+  console.log("Seller ID in LayoutSeller:", sellerid);
   const [collapsed, setCollapsed] = useState(false);
   const [title , setTitle] = useState("Header");
   useEffect(() => {
@@ -98,7 +101,7 @@ export default function LayoutSeller() {
           className="content_main p-3 overflow-auto"
           style={{ height: "calc(100vh - 56px)" }}
         >
-          <Outlet />
+          <Outlet context={{ seller_id: sellerid }}/>
         </div>
       </div>
     </div>
